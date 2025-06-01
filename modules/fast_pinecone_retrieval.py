@@ -89,10 +89,11 @@ class FastPineconeRetrieval:
             List of supplier product records
         """
         try:
-            logger.info(f"Searching supplier {supplier_id} products for: {query}")
+            logger.info(f"[SUPPLIER DEBUG] Searching supplier {supplier_id} products for: {query} in index: {index_name}")
             
             # Get the appropriate index
             index = self._get_index(index_name)
+            logger.info(f"[SUPPLIER DEBUG] Successfully connected to index: {index_name}")
             
             # Generate embedding for query
             query_embedding = await self.create_embeddings_async(query)
@@ -266,6 +267,8 @@ class FastPineconeRetrieval:
     def _process_supplier_results(self, results, include_supplier_info=False):
         """Process supplier query results into a consistent format."""
         records = []
+        
+        logger.info(f"[SUPPLIER DEBUG] Processing {len(results.get('matches', []))} supplier results")
         
         for match in results['matches']:
             metadata = match['metadata']

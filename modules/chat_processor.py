@@ -982,39 +982,18 @@ async def process_function_calls(chat_completion, user_id=None, patient_id=None)
             elif func_name == "retrieve_supplier_record":
                 logger.info(f"[SUPPLIER DEBUG] Executing retrieve_supplier_record with args: {func_args}")
                 result = await execute_retrieve_supplier_record(func_args)
+                logger.info(f"[SUPPLIER DEBUG] Result from execute_retrieve_supplier_record: {json.dumps(result, indent=2)}")
                 
                 # Format supplier results for display
                 if result.get('records') and len(result.get('records')) > 0:
-                    supplier_name = result['records'][0].get('supplier_name', 'Unknown Supplier')
-                    formatted = (
-                        f"<div class='supplier-results'>"
-                        f"<p>Here's what I found from <strong>{supplier_name}</strong>:</p>"
-                        f"<pre style='display:none'>" + json.dumps(result, indent=2) + "</pre>"
-                        f"</div>"
-                    )
+                    logger.info(f"[SUPPLIER DEBUG] Found {len(result['records'])} records")
+                    
+                    # Don't return early - let the model process the results
+                    # The model will use the tool results to generate a proper response
+                    pass  # Continue to normal tool response handling
                 else:
-                    formatted = (
-                        f"<div class='alert alert-info'>"
-                        f"I couldn't find any matching products or information for that query."
-                        f"</div>"
-                    )
-
-                return_obj = {
-                    "id": chat_completion.id,
-                    "object": chat_completion.object,
-                    "created": chat_completion.created,
-                    "model": chat_completion.model,
-                    "choices": [{
-                        "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": formatted
-                        },
-                        "finish_reason": "stop"
-                    }]
-                }
-
-                return type(chat_completion).model_validate(return_obj)
+                    logger.info(f"[SUPPLIER DEBUG] No records found for query")
+                    # Still don't return early - let the model handle the "no results" case
             
             elif func_name in ("retrieve_record", "query_patient_data"):
                 # Check if this is a patient record retrieval by name or ID

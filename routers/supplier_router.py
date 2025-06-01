@@ -49,7 +49,8 @@ async def supplier_chat_completion(supplier_id: str, request: ChatRequest):
                 "role": "system",
                 "content": f"SUPPLIER CONTEXT: You are representing {supplier_context.get('supplier_name', 'this supplier')}. "
                           f"When discussing products or services, prioritize information from this supplier. "
-                          f"Available categories: {', '.join(supplier_context.get('categories', {}).keys())}"
+                          f"Available categories: {', '.join(supplier_context.get('categories', {}).keys()) if isinstance(supplier_context.get('categories'), dict) else 'Products, Services'}. "
+                          f"Supplier ID: {supplier_id}"
             }
             messages.insert(-1, supplier_system_msg)  # Insert before last user message
         
