@@ -1370,8 +1370,18 @@ async def enhance_chat_completion(request, memory_manager):
     # For non-streaming, check if we need to execute a function call
     if not request.stream and getattr(chat_completion, 'choices', None):
         first = chat_completion.choices[0].message
-        if hasattr(first, 'function_call') and first.function_call:
-            # unpack the function name & JSON args
+        
+        # Check for tool_calls (new format) or function_call (old format)
+        if hasattr(first, 'tool_calls') and first.tool_calls:
+            logger.info(f"[SUPPLIER DEBUG] Found {len(first.tool_calls)} tool calls")
+            # Process tool calls
+            chat_completion = await process_function_calls(
+                chat_completion,
+                user_id=request.user_id,
+                patient_id=request.patient_id
+            )
+        elif hasattr(first, 'function_call') and first.function_call:
+            # Old format - for backward compatibility
             func_name = first.function_call.name
             func_args = json.loads(first.function_call.arguments)
             # hand off immediately to your executor
