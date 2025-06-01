@@ -980,6 +980,7 @@ async def process_function_calls(chat_completion, user_id=None, patient_id=None)
 
             # NEW: Supplier Record Retrieval
             elif func_name == "retrieve_supplier_record":
+                logger.info(f"[SUPPLIER DEBUG] Executing retrieve_supplier_record with args: {func_args}")
                 result = await execute_retrieve_supplier_record(func_args)
                 
                 # Format supplier results for display
@@ -1180,7 +1181,7 @@ async def enhance_chat_completion(request, memory_manager):
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     
     # Convert to standard OpenAI request format
-    oai_request = request.dict(exclude={"user_id", "patient_id", "retrieve_context", "context_query"})
+    oai_request = request.dict(exclude={"user_id", "patient_id", "retrieve_context", "context_query", "supplier_id"})
     
     # Remove unsupported parameters for o3-mini model
     if "o3-mini" in oai_request.get("model", ""):
@@ -1281,10 +1282,16 @@ async def enhance_chat_completion(request, memory_manager):
         oai_request["tools"] = FUNCTION_SPECS
     # ------------------------------------------------------------------------
     
-    # Enable function calling if model supports it
+    # Enable function calling if model supports it (but don't override if already set)
     if "gpt-4o" in oai_request["model"] or "o3-mini" in oai_request["model"] or "claude-3-7-sonnet-20250219" in oai_request["model"]:
-        oai_request["tools"] = FUNCTION_SPECS
-        oai_request["tool_choice"] = "auto"
+        if "tools" not in oai_request:
+            oai_request["tools"] = FUNCTION_SPECS
+        if "tool_choice" not in oai_request:
+            oai_request["tool_choice"] = "auto"
+    
+    # Log if we have a specific tool_choice set
+    if oai_request.get("tool_choice") and oai_request["tool_choice"] != "auto":
+        logger.info(f"[SUPPLIER DEBUG] Tool choice is set to: {oai_request['tool_choice']}")
     
     # Set user identifier for OpenAI
     if request.user_id and request.user_id != "anonymous":

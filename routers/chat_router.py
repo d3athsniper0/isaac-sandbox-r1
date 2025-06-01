@@ -83,6 +83,8 @@ async def retrieve_supplier_record(request: Dict[str, Any]):
         supplier_id = request.get("supplier_id")
         top_k = request.get("top_k", 10)
         
+        logger.info(f"[SUPPLIER DEBUG] /retrieve-supplier-record called with search_type={search_type}, query={query}, supplier_id={supplier_id}, top_k={top_k}")
+        
         # Call the retrieval method with supplier support
         records = await memory_manager.fast_pinecone_retrieval.retrieve_records_async(
             search_type=search_type,
@@ -90,6 +92,8 @@ async def retrieve_supplier_record(request: Dict[str, Any]):
             supplier_id=supplier_id,
             top_k=top_k
         )
+        
+        logger.info(f"[SUPPLIER DEBUG] Retrieved {len(records) if records else 0} records")
         
         # Format and return results
         return {

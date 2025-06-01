@@ -16,6 +16,9 @@ class ChatRequest(BaseModel):
     patient_id: Optional[str] = None
     retrieve_context: Optional[bool] = False
     context_query: Optional[str] = None
+    supplier_id: Optional[str] = None  # For supplier-specific requests
+    tools: Optional[List[Any]] = None  # For function tools
+    tool_choice: Optional[Any] = None  # For forcing specific tools
 
 class StreamRequest(ChatRequest):
     """Request model for streaming endpoint"""
