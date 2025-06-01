@@ -18,13 +18,22 @@ SUPPLIER_KEYWORDS = [
     'price', 'item', 'brand', 'what does', 'what do you', 
     'offer', 'sell', 'inventory', 'stock', 'available',
     'order', 'purchase', 'buy', 'cost', 'pricing',
-    'specification', 'specs', 'feature', 'benefit'
+    'specification', 'specs', 'feature', 'benefit',
+    'recommend', 'recommendation', 'suggest', 'suggestion',
+    'blade', 'instrument', 'tool', 'device', 'kit',
+    'system', 'solution', 'option', 'alternative',
+    'supplier', 'manufacturer', 'vendor', 'provide',
+    'dental product', 'dental material', 'dental equipment',
+    'surgical', 'microsurgical', 'micro surgical'
 ]
 
 SUPPLIER_PATTERNS = [
     "do you have", "do you sell", "do you offer",
     "can i get", "can i buy", "can i order",
-    "show me", "list of", "what are your"
+    "show me", "list of", "what are your",
+    "what kind of", "which type of", "what type of",
+    "do you recommend", "what do you recommend",
+    "looking for", "searching for", "need a"
 ]
 
 # Initialize memory manager

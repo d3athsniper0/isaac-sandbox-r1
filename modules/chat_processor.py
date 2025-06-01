@@ -1331,11 +1331,16 @@ async def enhance_chat_completion(request, memory_manager):
         oai_request["tools"] = FUNCTION_SPECS
     # ------------------------------------------------------------------------
 
+    # Only force get_information if no other tool choice is already set
     if force_get_info:
-        oai_request["tool_choice"] = {
-            "type": "function",
-            "function": {"name": "get_information"}
-        }
+        if "tool_choice" in oai_request:
+            logger.info(f"[SUPPLIER DEBUG] Skipping get_information force because tool_choice already set to: {oai_request['tool_choice']}")
+        else:
+            oai_request["tool_choice"] = {
+                "type": "function",
+                "function": {"name": "get_information"}
+            }
+            logger.info("[SUPPLIER DEBUG] Forcing get_information tool choice")
     
     # ------------------------------------------------------------------
     # Force patient‑record retrieval when requested
