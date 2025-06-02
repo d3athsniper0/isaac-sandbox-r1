@@ -16,14 +16,17 @@ class ChatRequest(BaseModel):
     patient_id: Optional[str] = None
     retrieve_context: Optional[bool] = False
     context_query: Optional[str] = None
-    supplier_id: Optional[str] = None  # For supplier-specific requests
-    tools: Optional[List[Any]] = None  # For function tools
-    tool_choice: Optional[Any] = None  # For forcing specific tools
 
 class StreamRequest(ChatRequest):
     """Request model for streaming endpoint"""
     stream: bool = True
     request_id: Optional[str] = None  # Client can provide request ID for tracking
+
+class SupplierChatRequest(ChatRequest):
+    """Request model for supplier-specific chat endpoint"""
+    supplier_id: Optional[str] = None
+    tools: Optional[List[Any]] = None
+    tool_choice: Optional[Any] = None
 
 class FunctionRequest(BaseModel):
     """Base model for function call requests"""

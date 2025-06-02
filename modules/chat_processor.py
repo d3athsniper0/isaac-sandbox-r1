@@ -1160,7 +1160,15 @@ async def enhance_chat_completion(request, memory_manager):
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     
     # Convert to standard OpenAI request format
-    oai_request = request.dict(exclude={"user_id", "patient_id", "retrieve_context", "context_query", "supplier_id"})
+    # Check if this is a supplier request
+    is_supplier_request = hasattr(request, 'supplier_id') and request.supplier_id is not None
+    
+    # Exclude fields based on request type
+    exclude_fields = {"user_id", "patient_id", "retrieve_context", "context_query"}
+    if is_supplier_request:
+        exclude_fields.add("supplier_id")
+    
+    oai_request = request.dict(exclude=exclude_fields)
     
     # Remove unsupported parameters for o3-mini model
     if "o3-mini" in oai_request.get("model", ""):
@@ -1268,8 +1276,8 @@ async def enhance_chat_completion(request, memory_manager):
         if "tool_choice" not in oai_request:
             oai_request["tool_choice"] = "auto"
     
-    # Log if we have a specific tool_choice set
-    if oai_request.get("tool_choice") and oai_request["tool_choice"] != "auto":
+    # Log if we have a specific tool_choice set (only for supplier requests)
+    if is_supplier_request and oai_request.get("tool_choice") and oai_request["tool_choice"] != "auto":
         logger.info(f"[SUPPLIER DEBUG] Tool choice is set to: {oai_request['tool_choice']}")
     
     # Set user identifier for OpenAI
@@ -1333,14 +1341,17 @@ async def enhance_chat_completion(request, memory_manager):
 
     # Only force get_information if no other tool choice is already set
     if force_get_info:
-        if "tool_choice" in oai_request:
-            logger.info(f"[SUPPLIER DEBUG] Skipping get_information force because tool_choice already set to: {oai_request['tool_choice']}")
+        # Check if tool_choice is actually set to something (not None)
+        if oai_request.get("tool_choice") is not None:
+            if is_supplier_request:
+                logger.info(f"[SUPPLIER DEBUG] Skipping get_information force because tool_choice already set to: {oai_request['tool_choice']}")
         else:
             oai_request["tool_choice"] = {
                 "type": "function",
                 "function": {"name": "get_information"}
             }
-            logger.info("[SUPPLIER DEBUG] Forcing get_information tool choice")
+            if not is_supplier_request:
+                logger.info("Forcing get_information tool choice for search query")
     
     # ------------------------------------------------------------------
     # Force patient‑record retrieval when requested
@@ -1378,7 +1389,8 @@ async def enhance_chat_completion(request, memory_manager):
         
         # Check for tool_calls (new format) or function_call (old format)
         if hasattr(first, 'tool_calls') and first.tool_calls:
-            logger.info(f"[SUPPLIER DEBUG] Found {len(first.tool_calls)} tool calls")
+            if is_supplier_request:
+                logger.info(f"[SUPPLIER DEBUG] Found {len(first.tool_calls)} tool calls")
             # Process tool calls
             chat_completion = await process_function_calls(
                 chat_completion,

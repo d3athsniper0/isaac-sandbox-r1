@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from typing import Dict, List, Any, Optional
 import os
 
-from models.request_models import ChatRequest # type: ignore
+from models.request_models import SupplierChatRequest # type: ignore
 from modules.fast_memory import FastMemoryManager # type: ignore
 from modules.chat_processor import enhance_chat_completion, FUNCTION_SPECS # type: ignore
 
@@ -42,7 +42,7 @@ memory_manager = FastMemoryManager(
 )
 
 @router.post("/v1/suppliers/{supplier_id}/chat/completions")
-async def supplier_chat_completion(supplier_id: str, request: ChatRequest):
+async def supplier_chat_completion(supplier_id: str, request: SupplierChatRequest):
     """Create a chat completion with supplier-specific context"""
     try:
         # Add supplier context to the request
@@ -98,7 +98,7 @@ async def supplier_chat_completion(supplier_id: str, request: ChatRequest):
         # Add supplier_id to the request
         supplier_request["supplier_id"] = supplier_id
         
-        supplier_request = ChatRequest(**supplier_request)
+        supplier_request = SupplierChatRequest(**supplier_request)
         
         # Process with existing chat completion
         return await enhance_chat_completion(supplier_request, memory_manager)
