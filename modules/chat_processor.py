@@ -851,22 +851,28 @@ async def format_search_results_with_llm(content, citations, query):
     openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
     formatting_prompt = f"""
-    Format these search results about "{query}" into a clear, well-structured response using ONLY Markdown formatting:
+Format these search results about "{query}" into a clear, well-structured response using ONLY Markdown formatting:
 
-    Content: {content}
+Content: {content}
 
-    Citations: {json.dumps(citations)}
+Citations: {json.dumps(citations)}
 
-    Requirements:
-    1. Use proper Markdown syntax ONLY - NO HTML tags
-    2. Format links as [Link Text](URL) - standard Markdown link format
-    3. Use ## for headings and - for bullet points
-    4. Keep it clean and readable
-    5. For any URLs, format them as [Descriptive Text](URL) where Descriptive Text is meaningful like "More Details" or "Product Page"
-    6. Do NOT use HTML anchor tags or any HTML formatting
-    7. IMPORTANT: If there's a follow-up question at the end, preserve it exactly as is
+Requirements:
+1. Use proper Markdown syntax ONLY - NO HTML tags
+2. **CRITICAL**: For EVERY product mentioned, you MUST extract and include a clickable link
+3. **MANDATORY**: Look for URLs in the content and create [Product Name](URL) links for each product
+4. **REQUIRED**: If you see product names without explicit URLs, create links using the example pattern [Product Name](https://goetzedental.com/product-name-slug)
+5. Format as: **[Product Name](URL)** for each product
+6. Use ## for headings and - for bullet points
+7. For any URLs in the content, format them as [Descriptive Text](URL) where Descriptive Text is the actual product name
+8. IMPORTANT: If there's a follow-up question at the end, preserve it exactly as is
+9. **EXTRACT ALL URLS**: Scan the entire content for any URLs and convert them to proper markdown links
 
-    Example of correct link format: [More Details](https://example.com/product)
+Examples:
+- **[Digital DOC XTG Handheld X-ray](https://goetzedental.com/digital-doc-xtg-handheld-x-ray)**
+- **[KaVo FOCUS](https://goetzedental.com/kavo-focus-intraoral-x-ray)**
+
+CRITICAL: Every single product mentioned in your response MUST have a clickable link. No exceptions.
 """
     
     try:
