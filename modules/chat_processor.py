@@ -1270,7 +1270,7 @@ async def enhance_chat_completion(request, memory_manager):
     # ------------------------------------------------------------------------
     
     # Enable function calling if model supports it (but don't override if already set)
-    if "gpt-4o" in oai_request["model"] or "o3-mini" in oai_request["model"] or "claude-3-7-sonnet-20250219" in oai_request["model"]:
+    if "gpt-4o" in oai_request["model"] or "o3-mini" in oai_request["model"] or "claude-3-7-sonnet-20250219" in oai_request["model"] or "gpt-4" in oai_request["model"]:
         if "tools" not in oai_request:
             oai_request["tools"] = FUNCTION_SPECS
         if "tool_choice" not in oai_request:
