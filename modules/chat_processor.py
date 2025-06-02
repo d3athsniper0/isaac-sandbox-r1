@@ -851,20 +851,23 @@ async def format_search_results_with_llm(content, citations, query):
     openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
     formatting_prompt = f"""
-    Format these search results about "{query}" into a clear, well-structured response:
+    Format these search results about "{query}" into a clear, well-structured response using ONLY Markdown formatting:
 
     Content: {content}
-    
+
     Citations: {json.dumps(citations)}
-    
+
     Requirements:
-    1. Complete any cut-off sentences based on context
-    2. Format with proper Markdown headings and bullet points
-    3. Convert citation references like [1] into proper links
-    4. Make your response comprehensive but concise
-    5. CRITICAL: In the "References" section use each source's **title or a clear short descriptor** as the clickable text (NEVER "Source 1", "Source 2", ...) and number them.
-    6. IMPORTANT: If there's a follow-up question at the end (separated by line breaks), preserve it EXACTLY as is with the same formatting, including the two line breaks before it.
-    """
+    1. Use proper Markdown syntax ONLY - NO HTML tags
+    2. Format links as [Link Text](URL) - standard Markdown link format
+    3. Use ## for headings and - for bullet points
+    4. Keep it clean and readable
+    5. For any URLs, format them as [Descriptive Text](URL) where Descriptive Text is meaningful like "More Details" or "Product Page"
+    6. Do NOT use HTML anchor tags or any HTML formatting
+    7. IMPORTANT: If there's a follow-up question at the end, preserve it exactly as is
+
+    Example of correct link format: [More Details](https://example.com/product)
+"""
     
     try:
         # Use a fast model for formatting to reduce latency
