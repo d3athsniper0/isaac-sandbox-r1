@@ -777,7 +777,7 @@ async def execute_get_information(args):
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.post(
-                f"{BASE_URL}/api/get-information",
+                f"{BASE_URL}/get-information",
                 json=args
             )
             
