@@ -60,8 +60,10 @@ async def supplier_chat_completion(supplier_id: str, request: SupplierChatReques
                         f"NEVER refer to the company in third person (don't say 'contact Goetze Dental' or 'visit their website'). "
                         f"Instead say 'contact us', 'our website', 'we offer', etc. "
                         f"You are integrated into our website, so users are already here. "
-                        f"When discussing products or services, prioritize our offerings. "
-                        f"PRODUCT FORMATTING: When presenting ANY product, you MUST format it as **[Product Name](URL)**. "
+                        f"CRITICAL: NEVER say 'More detailed specs can be found on our website' or any generic website references. "
+                        f"ALWAYS provide specific product URLs when available. "
+                        f"PRODUCT FORMATTING: When presenting ANY product, you MUST format it as **[Product Name](URL)** with the actual product URL. "
+                        f"If you don't have a specific URL, don't mention the product. "
                         f"Available categories: {', '.join(supplier_context.get('categories', {}).keys()) if isinstance(supplier_context.get('categories'), dict) else 'Products, Services'}. "
                         f"Supplier ID: {supplier_id}"
             }
@@ -87,7 +89,12 @@ async def supplier_chat_completion(supplier_id: str, request: SupplierChatReques
             # Add instruction to force supplier search
             search_instruction = {
                 "role": "system",
-                "content": f"CRITICAL: The user is asking about supplier products. You MUST use retrieve_supplier_record with search_type='supplier_products', query='{request.messages[-1].content}', and supplier_id='{supplier_id}' to find relevant products. Do not modify the query. FORMATTING REQUIREMENT: When presenting product results, you MUST format EVERY product name as a clickable markdown link **[Product Name](URL)**. Extract URLs from the product data and ensure every single product mentioned has a clickable link. NEVER mention a product without including its link."
+                "content": f"CRITICAL: The user is asking about supplier products. You MUST use retrieve_supplier_record with search_type='supplier_products', query='{request.messages[-1].content}', and supplier_id='{supplier_id}' to find relevant products. Do not modify the query. "
+                        f"MANDATORY FORMATTING: When presenting product results, you MUST format EVERY product name as **[Product Name](Specific_Product_URL)**. "
+                        f"EXTRACT specific product URLs from the retrieved data - do NOT use generic website references. "
+                        f"NEVER say 'found on our website' or 'visit our website' - ALWAYS use specific product page URLs. "
+                        f"If a product doesn't have a specific URL in the data, do NOT mention that product. "
+                        f"FORBIDDEN: Generic phrases like 'more information on our website' or 'detailed specs on our site'."
             }
             messages.insert(-1, search_instruction)
             supplier_request["messages"] = [type(request.messages[0])(**msg) for msg in messages]
