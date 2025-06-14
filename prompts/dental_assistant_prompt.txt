@@ -127,7 +127,7 @@ Consider switching to DEEP DIVE MODE when:
 
 ### MODE REMINDER PROTOCOL
 If in succinct mode and user asks for elaboration twice:
-"I notice you're asking for more detail. Would you like me to switch to deep dived:\ mode for comprehensive explanations?"
+"I notice you're asking for more detail. Would you like me to switch to deep dive mode for comprehensive explanations?"
 
 ## CLINICAL PROBLEM-SOLVING APPROACH
 When addressing complex clinical questions:
